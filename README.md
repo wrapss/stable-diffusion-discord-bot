@@ -217,3 +217,22 @@ hires.fix のオプションが未指定、またはNOのときは、zoom指定�
 included upstream(AndBobsYourUncle's) update. It seems to change batch_size and program code improvements.
 but I don't care about that.
 
+## 014. BUTTON_COMPONENT_INVALID_EMOJI error on imagine_settings, new --px param will appended soon
+an error calling imagine_settings command.
+![invalid_emoji](https://github.com/pitapan5376/stable-diffusion-discord-bot/blob/master/document/014_emojierror.png?raw=true)
+
+```
+24/02/23 04:51:32 Error responding to interaction: HTTP 400 Bad Request, 
+{"message": "Invalid Form Body", "code": 50035, "errors": {"data": 
+{"components": {"0": {"components": {"0": {"options": {"0": 
+{"emoji": {"name": {"_errors": [{"code": "BUTTON_COMPONENT_INVALID_EMOJI", "message": "Invalid emoji"}]}}}, 
+"1": {"emoji": {"name": {"_errors": [{"code": "BUTTON_COMPONENT_INVALID_EMOJI", "message": "Invalid emoji"...
+```
+this seems in interaction between bot and Discord, but it's too difficult to solve for me.
+in order to set pixel size, I will append `--px X,Y` param as in prompt option.
+
+初期値設定コマンドが動作しないという報告を受けたので確認したところ絵文字に関するエラーが出ていた。
+調べた範囲ではDiscordとのやり取りをするライブラリ内の問題らしく、修正は難しいと思われる。
+サイズ変更のため、新たに `--px X,Y` の形式で指定可能にして、この後に`zoom`の適用ができるようにしておく予定。
+（他オプションとの関連も検討してから近いうちに修正予定）
+
