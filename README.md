@@ -236,3 +236,29 @@ in order to set pixel size, I will append `--px X,Y` param as in prompt option.
 サイズ変更のため、新たに `--px X,Y` の形式で指定可能にして、この後に`zoom`の適用ができるようにしておく予定。
 （他オプションとの関連も検討してから近いうちに修正予定）
 
+## 015. --px X,Y param
+`--px X,Y`　の形式でベースの縦横幅を与えられるようにした。 `--ar`を指定してあっても、`--px`が優先される。
+/imagine_settingsコマンドでの 512x512 や 768x768 は, --px を使うと意味をなさない。
+
+ズーム指定とピクセル指定は同居できるので、 --px 1000,200 --zoom 2 なら 2000x400の画像ができる。
+区切り文字は半角コロン`:`またはカンマ`,`を受け付ける。後ろに空白があってもよい。
+`--px 1200:800`
+`--px 1200,800`
+`--px 1200, 800`
+
+append param as `--px X,Y` for base width and height. `--ar` is ignored if you state `--px` param.
+/imagine_setting's default value is no longer effective if you use --px param.
+
+you can use both --zoom and --px.
+you would do as `1girl --px 1000:200 --zoom 2` then you get 2000x400 px.
+
+the separator is accepted either colon or comma character, with and without space.
+you could write as:
+
+`--px 1200:800`
+`--px 1200,800`
+`--px 1200, 800`
+
+あとでサンプル画像を足しておく。
+I will add here sample generations.
+  

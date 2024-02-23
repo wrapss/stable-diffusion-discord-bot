@@ -330,7 +330,12 @@ type zoomScaleResult struct {
 	ZoomScale       float64
 }
 
-
+type pixelSpecifiedResult struct {
+	SanitizedPrompt string
+	Width		int
+	Height		int
+	IsProcessed	bool
+}
 
 const (
 	emdash = '\u2014'
@@ -508,6 +513,49 @@ func extractZoomScaleFromPrompt(prompt string, defaultZoomScale float64) (*zoomS
 	}, nil
 }
 
+// pixel size before zoom, accept by X,Y 
+var pxRegex = regexp.MustCompile(`\s?--px (\d+)[:,] ?(\d+)\s?`)
+func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedResult, error) {
+
+	pxMatches := pxRegex.FindStringSubmatch(prompt)
+	pxValueX  := defaultXYValue
+	pxValueY  := defaultXYValue
+	processed := false
+	var x,y int
+	var err, err2 error
+
+	if len(pxMatches) == 3 {
+		log.Printf("pixel size overwrite: %#v", pxMatches)
+
+		prompt = pxRegex.ReplaceAllString(prompt, "")
+		x, err = strconv.Atoi(pxMatches[1])
+		if err != nil {
+			return nil, err
+		}
+		pxValueX = x
+
+		y, err2 = strconv.Atoi(pxMatches[2])
+		if err2 != nil {
+			return nil, err2
+		}
+		pxValueY = y
+		// Round up to the nearest 8
+		pxValueX = (int(pxValueX) + 7) & (-8)
+		pxValueY = (int(pxValueY) + 7) & (-8)
+
+		log.Printf("New base x, y: width: %v, height: %v", pxValueX, pxValueY)
+		processed = true
+	}
+
+	return &pixelSpecifiedResult{
+		SanitizedPrompt: prompt,
+		Width:           pxValueX,
+		Height:          pxValueY,
+		IsProcessed:     processed,
+	}, nil
+}
+
+
 
 
 const defaultNegative = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, " +
@@ -579,6 +627,20 @@ func (q *queueImpl) processCurrentImagine() {
 			hiresWidth = promptRes.Width
 			hiresHeight = promptRes.Height
 		}
+
+		promptResPx, errPx := extractPixelFromPrompt(promptRes.SanitizedPrompt, defaultWidth)
+		if errPx != nil {
+			log.Printf("Error extracting px X,Y from prompt: %v", errPx)
+
+			return
+		}
+
+		if (promptResPx.IsProcessed) {
+			scaledWidth = promptResPx.Width
+			scaledHeight = promptResPx.Height
+			hiresWidth = promptResPx.Width
+			hiresHeight = promptResPx.Height
+		}
 		
 		// add optional parameter: enable hires.fix
 		enableHR1 := false
@@ -588,7 +650,7 @@ func (q *queueImpl) processCurrentImagine() {
 		// extract --zoom parameter
 
 		defaultZoomValue1 := 2.0
-		promptResZ, errZ := extractZoomScaleFromPrompt(promptRes.SanitizedPrompt, defaultZoomValue1)
+		promptResZ, errZ := extractZoomScaleFromPrompt(promptResPx.SanitizedPrompt, defaultZoomValue1)
 		if errZ != nil {
 			log.Printf("Error extracting zoom scale from prompt: %v", errZ)
 
