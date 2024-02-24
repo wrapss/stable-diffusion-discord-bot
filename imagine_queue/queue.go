@@ -542,6 +542,12 @@ func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedR
 		// Round up to the nearest 8
 		pxValueX = (int(pxValueX) + 7) & (-8)
 		pxValueY = (int(pxValueY) + 7) & (-8)
+		
+		if pxValueX > 8192 {
+			pxValueX = 8192
+		} else if pxValueY > 8192 {
+			pxValueY = 8192
+		}
 
 		log.Printf("New base x, y: width: %v, height: %v", pxValueX, pxValueY)
 		processed = true

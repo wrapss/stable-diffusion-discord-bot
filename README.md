@@ -241,24 +241,40 @@ in order to set pixel size, I will append `--px X,Y` param as in prompt option.
 /imagine_settingsコマンドでの 512x512 や 768x768 は, --px を使うと意味をなさない。
 
 ズーム指定とピクセル指定は同居できるので、 --px 1000,200 --zoom 2 なら 2000x400の画像ができる。
-区切り文字は半角コロン`:`またはカンマ`,`を受け付ける。後ろに空白があってもよい。
-`--px 1200:800`
-`--px 1200,800`
-`--px 1200, 800`
 
-append param as `--px X,Y` for base width and height. `--ar` is ignored if you state `--px` param.
+区切り文字は半角コロン`:`またはカンマ`,`を受け付ける。後ろに空白があってもよい。
+
+```
+--px 1200:800
+--px 1200,800
+--px 1200, 800
+```
+
+最大サイズはメモリエラーが発生し得るので 8192 までにした。
+メモリ不足エラーをつかむ方法はまだ分からないので自力で調整する必要がある。（他に何か起動していたらそちらで消費される）
+
+
+I appended param as `--px X,Y` for base width and height. `--ar` is ignored if you state `--px` param.
 /imagine_setting's default value is no longer effective if you use --px param.
 
 you can use both --zoom and --px.
 you would do as `1girl --px 1000:200 --zoom 2` then you get 2000x400 px.
 
 the separator is accepted either colon or comma character, with and without space.
+
 you could write as:
 
-`--px 1200:800`
-`--px 1200,800`
-`--px 1200, 800`
+```
+--px 1200:800
+--px 1200,800
+--px 1200, 800
+```
+
+Max. value of X,Y are 8192.
+
+In this version, I cannot catch API Memory Out error so adjust yourself in base size.
+
 
 あとでサンプル画像を足しておく。
 I will add here sample generations.
-  
+ 
