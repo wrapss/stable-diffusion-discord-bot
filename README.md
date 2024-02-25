@@ -240,7 +240,7 @@ in order to set pixel size, I will append `--px X,Y` param as in prompt option.
 `--px X,Y`　の形式でベースの縦横幅を与えられるようにした。 `--ar`を指定してあっても、`--px`が優先される。
 /imagine_settingsコマンドでの 512x512 や 768x768 は, --px を使うと意味をなさない。
 
-ズーム指定とピクセル指定は同居できるので、 --px 1000,200 --zoom 2 なら 2000x400の画像ができる。
+ズーム指定とピクセル指定は同居できるので、 `--px 1000,200 --zoom 2` なら 2000x400の画像ができる。
 
 区切り文字は半角コロン`:`またはカンマ`,`を受け付ける。後ろに空白があってもよい。
 
@@ -274,7 +274,52 @@ Max. value of X,Y are 8192.
 
 In this version, I cannot catch API Memory Out error so adjust yourself in base size.
 
+### avoid timeout error with AUTO1111's API
+
+巨大な画像を指定するとき、GPUメモリが足りているのに停止することがある。
+
+AUTO1111のpythonWebサーバーのオプション `--timeout-keep-alive=` でタイムアウト値をのばすことで緩和は可能だが、
+一定を超えるとDiscordとのやりとりでの進捗％の更新に失敗するようだ。
+
+for large image, you could mitigate the timeout error which is between AUTO1111 WebUI API and program by `--timeout-keep-alive`,
+but at some point of elasped processing time, interaction with Discord API will failed to update progress %.
+
+Anyway, on AUTO1111's `webui-user.bat`, you could set timeout longer like this:
+
+```
+@echo off
+
+set PYTHON=
+set GIT=
+set VENV_DIR=
+set COMMANDLINE_ARGS= --api --nowebui --timeout-keep-alive=30000 --port 7860
+
+call webui.bat
+
+```
+
+botコマンドのログ例
+
+![bot_command_log_long_wait](https://github.com/pitapan5376/stable-diffusion-discord-bot/blob/master/document/015_bot_log.png?raw=true)
+
+webuiのコンソール表示例
+
+![web_ui_log_long_wait](https://github.com/pitapan5376/stable-diffusion-discord-bot/blob/master/document/015_webui-user_log.png?raw=true)
+
+
+私の環境では2000x1000, 2000x512 は失敗し、 2000x256 (hires.fixで4000x512)は成功した。
+
+In my environment, only 2000x256 was succeeded.(4000x512 on hires.fix with zoom 2) 
+
+![015_timeout_discord](https://github.com/pitapan5376/stable-diffusion-discord-bot/blob/master/document/015_timeout_discord.png?raw=true)
+
+
+![015_4000x512](https://github.com/pitapan5376/stable-diffusion-discord-bot/blob/master/document/015_4000x512.png)
+
+
+## samples would be added here
 
 あとでサンプル画像を足しておく。
+
 I will add here sample generations.
  
