@@ -588,6 +588,11 @@ func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.M
 							Value:   "playground-v2.5-1024px-aesthetic.fp16",
 							Default: settings.Model == "playground-v2.5-1024px-aesthetic.fp16",
 						},
+						{
+							Label:   "ProteusV0.3",
+							Value:   "ProteusV0.3",
+							Default: settings.Model == "ProteusV0.3",
+						},
 					},
 				},
 			},
