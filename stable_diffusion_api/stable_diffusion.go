@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -124,6 +125,42 @@ func (api *apiImpl) TextToImage(req *TextToImageRequest) (*TextToImageResponse, 
 		Seeds:    infoStruct.AllSeeds,
 		Subseeds: infoStruct.AllSubseeds,
 	}, nil
+}
+
+func (api *apiImpl) LoadModel(modelName string) error {
+	postURL := api.host + "/sdapi/v1/options"
+
+	jsonData, err := json.Marshal(map[string]string{
+		"sd_model_checkpoint": modelName,
+	})
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest("POST", postURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		log.Printf("API URL: %s", postURL)
+		log.Printf("Error with API Request: %s", string(jsonData))
+
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to load model: %s", modelName)
+	}
+
+	return nil
 }
 
 type UpscaleRequest struct {

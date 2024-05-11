@@ -544,11 +544,45 @@ func (b *botImpl) processImagineCommand(s *discordgo.Session, i *discordgo.Inter
 	}
 }
 
+func (b *botImpl) processImagineModelSetting(s *discordgo.Session, i *discordgo.InteractionCreate, model string) {
+	botSettings, err := b.imagineQueue.UpdateDefaultModel(model)
+	if err != nil {
+		// Gestion des erreurs
+	}
+
+	messageComponents := settingsMessageComponents(botSettings)
+
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Content:    "Choose defaults settings for the imagine command:",
+			Components: messageComponents,
+		},
+	})
+	// Gestion des erreurs
+}
+
 // patch from upstream
 func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.MessageComponent {
 	minValues := 1
 
 	return []discordgo.MessageComponent{
+		discordgo.ActionsRow{
+			Components: []discordgo.MessageComponent{
+				discordgo.SelectMenu{
+					CustomID:  "imagine_model_setting_menu",
+					MinValues: &minValues,
+					MaxValues: 1,
+					Options: []discordgo.SelectMenuOption{
+						{
+							Label:   "playground-v2.5-1024px-aesthetic.fp16",
+							Value:   "playground-v2.5-1024px-aesthetic.fp16",
+							Default: settings.Model == "playground-v2.5-1024px-aesthetic.fp16",
+						},
+					},
+				},
+			},
+		},
 		discordgo.ActionsRow{
 			Components: []discordgo.MessageComponent{
 				discordgo.SelectMenu{

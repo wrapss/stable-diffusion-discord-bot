@@ -752,6 +752,33 @@ func (q *queueImpl) processCurrentImagine() {
 	}()
 }
 
+func (q *queueImpl) UpdateDefaultModel(model string) (*entities.DefaultSettings, error) {
+	defaultSettings, err := q.GetBotDefaultSettings()
+	if err != nil {
+		return nil, err
+	}
+
+	if defaultSettings.Model != model {
+		defaultSettings.Model = model
+
+		newDefaultSettings, err := q.defaultSettingsRepo.Upsert(context.Background(), defaultSettings)
+		if err != nil {
+			return nil, err
+		}
+
+		q.botDefaultSettings = newDefaultSettings
+
+		if model != "" {
+			err = q.stableDiffusionAPI.LoadModel(model)
+			if err != nil {
+				log.Printf("Error loading model: %v", err)
+			}
+		}
+	}
+
+	return defaultSettings, nil
+}
+
 func (q *queueImpl) getPreviousGeneration(imagine *QueueItem, sortOrder int) (*entities.ImageGeneration, error) {
 	interactionID := imagine.DiscordInteraction.ID
 	messageID := ""

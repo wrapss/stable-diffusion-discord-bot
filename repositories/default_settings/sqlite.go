@@ -11,11 +11,11 @@ import (
 )
 
 const upsertSetting string = `
-INSERT OR REPLACE INTO default_settings (member_id, width, height, batch_count, batch_size) VALUES (?, ?, ?, ?, ?);
+INSERT OR REPLACE INTO default_settings (member_id, width, height, batch_count, batch_size, model) VALUES (?, ?, ?, ?, ?, ?);
 `
 
 const getSettingByMemberID string = `
-SELECT member_id, width, height, batch_count, batch_size FROM default_settings WHERE member_id = ?;
+SELECT member_id, width, height, batch_count, batch_size, model FROM default_settings WHERE member_id = ?;
 `
 
 type sqliteRepo struct {
