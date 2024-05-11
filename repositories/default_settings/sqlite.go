@@ -42,7 +42,7 @@ func NewRepository(cfg *Config) (Repository, error) {
 
 func (repo *sqliteRepo) Upsert(ctx context.Context, setting *entities.DefaultSettings) (*entities.DefaultSettings, error) {
 	_, err := repo.dbConn.ExecContext(ctx, upsertSetting,
-		setting.MemberID, setting.Width, setting.Height, setting.BatchCount, setting.BatchSize)
+		setting.MemberID, setting.Width, setting.Height, setting.BatchCount, setting.BatchSize, setting.Model)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (repo *sqliteRepo) GetByMemberID(ctx context.Context, memberID string) (*en
 	var setting entities.DefaultSettings
 
 	err := repo.dbConn.QueryRowContext(ctx, getSettingByMemberID, memberID).Scan(
-		&setting.MemberID, &setting.Width, &setting.Height, &setting.BatchCount, &setting.BatchSize)
+		&setting.MemberID, &setting.Width, &setting.Height, &setting.BatchCount, &setting.BatchSize, &setting.Model)
 
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
