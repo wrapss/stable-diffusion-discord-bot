@@ -161,6 +161,15 @@ func New(cfg Config) (Bot, error) {
 
 				bot.processImagineDimensionSetting(s, i, widthInt, heightInt)
 
+			case customID == "imagine_model_setting_menu":
+				if len(i.MessageComponentData().Values) == 0 {
+					log.Printf("No values for imagine model setting menu")
+					return
+				}
+
+				model := i.MessageComponentData().Values[0]
+				bot.processImagineModelSetting(s, i, model)
+
 			// patch from upstream
 			case customID == "imagine_batch_count_setting_menu":
 				if len(i.MessageComponentData().Values) == 0 {
