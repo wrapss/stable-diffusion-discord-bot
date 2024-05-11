@@ -285,90 +285,94 @@ func (b *botImpl) addImagineCommand() error {
 				Required:    false,
 			},
 			{
-				Type:	     discordgo.ApplicationCommandOptionString,
-				Name:	     "sampler_name",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "sampler_name",
 				Description: "sampler",
 				Required:    false,
-				Choices: []*discordgo.ApplicationCommandOptionChoice {
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "Euler a",
-						Value:"Euler a",
+						Name:  "Euler a",
+						Value: "Euler a",
 					},
 					{
-						Name: "DDIM",
-						Value:"DDIM",
+						Name:  "DDIM",
+						Value: "DDIM",
 					},
 					{
-						Name: "PLMS",
-						Value:"PLMS",
+						Name:  "PLMS",
+						Value: "PLMS",
 					},
 					{
-						Name: "UniPC",
-						Value:"UniPC",
+						Name:  "UniPC",
+						Value: "UniPC",
 					},
 					{
-						Name: "Heun",
-						Value:"Heun",
+						Name:  "Heun",
+						Value: "Heun",
 					},
 					{
-						Name: "Euler",
-						Value:"Euler",
+						Name:  "Euler",
+						Value: "Euler",
 					},
 					{
-						Name: "LMS",
-						Value:"LMS",
+						Name:  "LMS",
+						Value: "LMS",
 					},
 					{
-						Name: "LMS Karras",
-						Value:"LMS Karras",
+						Name:  "LMS Karras",
+						Value: "LMS Karras",
 					},
 					{
-						Name: "DPM2 a",
-						Value:"DPM2 a",
+						Name:  "DPM2 a",
+						Value: "DPM2 a",
 					},
 					{
-						Name: "DPM2 a Karras",
-						Value:"DPM2 a Karras",
+						Name:  "DPM2 a Karras",
+						Value: "DPM2 a Karras",
 					},
 					{
-						Name: "DPM2",
-						Value:"DPM2",
+						Name:  "DPM2",
+						Value: "DPM2",
 					},
 					{
-						Name: "DPM2 Karras",
-						Value:"DPM2 Karras",
+						Name:  "DPM2 Karras",
+						Value: "DPM2 Karras",
 					},
 					{
-						Name: "DPM fast",
-						Value:"DPM fast",
+						Name:  "DPM fast",
+						Value: "DPM fast",
 					},
 					{
-						Name: "DPM adaptive",
-						Value:"DPM adaptive",
+						Name:  "DPM adaptive",
+						Value: "DPM adaptive",
 					},
 					{
-						Name: "DPM++ 2S a",
-						Value:"DPM++ 2S a",
+						Name:  "DPM++ 2S a",
+						Value: "DPM++ 2S a",
 					},
 					{
-						Name: "DPM++ 2M",
-						Value:"DPM++ 2M",
+						Name:  "DPM++ 2M",
+						Value: "DPM++ 2M",
 					},
 					{
-						Name: "DPM++ SDE",
-						Value:"DPM++ SDE",
+						Name:  "DPM++ SDE",
+						Value: "DPM++ SDE",
 					},
 					{
-						Name: "DPM++ 2S a Karras",
-						Value:"DPM++ 2S a Karras",
+						Name:  "DPM++ 2S a Karras",
+						Value: "DPM++ 2S a Karras",
 					},
 					{
-						Name: "DPM++ 2M Karras",
-						Value:"DPM++ 2M Karras",
+						Name:  "DPM++ 2M Karras",
+						Value: "DPM++ 2M Karras",
 					},
 					{
-						Name: "DPM++ SDE Karras",
-						Value:"DPM++ SDE Karras",
+						Name:  "DPM++ SDE Karras",
+						Value: "DPM++ SDE Karras",
+					},
+					{
+						Name:  "DPM++ 2M EDM",
+						Value: "DPM++ 2M EDM",
 					},
 				},
 			},
@@ -377,13 +381,13 @@ func (b *botImpl) addImagineCommand() error {
 				Name:        "use_hires_fix",
 				Description: "use hires.fix or not. default=No for better performance",
 				Required:    false,
-				Choices: []*discordgo.ApplicationCommandOptionChoice {
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "Yes",
+						Name:  "Yes",
 						Value: "true",
 					},
 					{
-						Name: "No",
+						Name:  "No",
 						Value: "false",
 					},
 				},
@@ -493,7 +497,7 @@ func (b *botImpl) processImagineCommand(s *discordgo.Session, i *discordgo.Inter
 	var queueError error
 	var prompt string
 	negative := ""
-	sampler  := "Euler a"
+	sampler := "Euler a"
 	hiresfix := false
 
 	if option, ok := optionMap["prompt"]; ok {
@@ -621,7 +625,6 @@ func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.M
 	}
 }
 
-
 func (b *botImpl) processImagineSettingsCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	botSettings, err := b.imagineQueue.GetBotDefaultSettings()
 	if err != nil {
@@ -637,7 +640,7 @@ func (b *botImpl) processImagineSettingsCommand(s *discordgo.Session, i *discord
 		Data: &discordgo.InteractionResponseData{
 			Title:      "Settings",
 			Content:    "Choose defaults settings for the imagine command:",
-			Components: messageComponents,		
+			Components: messageComponents,
 		},
 	})
 	if err != nil {
@@ -708,4 +711,3 @@ func (b *botImpl) processImagineBatchSetting(s *discordgo.Session, i *discordgo.
 		log.Printf("Error responding to interaction: %v", err)
 	}
 }
-
