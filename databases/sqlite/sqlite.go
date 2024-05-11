@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS default_settings (
 member_id TEXT NOT NULL PRIMARY KEY,
 width INTEGER NOT NULL,
 height INTEGER NOT NULL
+model TEXT NOT NULL
 );`
 
 const addHiresMissingColumnsQuery string = `
