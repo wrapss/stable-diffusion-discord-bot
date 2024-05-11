@@ -562,9 +562,7 @@ func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedR
 	}, nil
 }
 
-const defaultNegative = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, " +
-	"mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, " +
-	"body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
+const defaultNegative = ""
 
 func (q *queueImpl) processCurrentImagine() {
 	go func() {
@@ -683,7 +681,7 @@ func (q *queueImpl) processCurrentImagine() {
 			stepValue = promptRes2.Steps
 		}
 
-		cfgScaleValue := 9.0 // default CFG scale value
+		cfgScaleValue := 5.0 // default CFG scale value
 		promptRes3, err := extractCFGScaleFromPrompt(promptRes2.SanitizedPrompt, cfgScaleValue)
 		if err != nil {
 			log.Printf("Error extracting cfg scale from prompt: %v", err)
