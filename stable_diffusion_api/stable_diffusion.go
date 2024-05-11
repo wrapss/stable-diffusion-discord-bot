@@ -63,7 +63,7 @@ type TextToImageRequest struct {
 	SamplerName     string  `json:"sampler_name"`
 	CfgScale        float64 `json:"cfg_scale"`
 	Steps           int     `json:"steps"`
-	// NIter             int     `json:"n_iter"`
+	NIter           int     `json:"n_iter"`
 }
 
 func (api *apiImpl) TextToImage(req *TextToImageRequest) (*TextToImageResponse, error) {
@@ -154,6 +154,8 @@ func (api *apiImpl) UpscaleImage(upscaleReq *UpscaleRequest) (*UpscaleResponse, 
 	if textToImageReq == nil {
 		return nil, errors.New("missing text to image request")
 	}
+
+	textToImageReq.NIter = 1
 
 	regeneratedImage, err := api.TextToImage(textToImageReq)
 	if err != nil {
