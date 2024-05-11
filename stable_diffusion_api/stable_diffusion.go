@@ -33,9 +33,9 @@ type jsonTextToImageResponse struct {
 }
 
 type jsonInfoResponse struct {
-	Seed        int64 `json:"seed"`
+	Seed        int64   `json:"seed"`
 	AllSeeds    []int64 `json:"all_seeds"`
-	AllSubseeds []int `json:"all_subseeds"`
+	AllSubseeds []int   `json:"all_subseeds"`
 }
 
 type TextToImageResponse struct {
@@ -45,25 +45,25 @@ type TextToImageResponse struct {
 }
 
 type TextToImageRequest struct {
-	Prompt            string  `json:"prompt"`
-	NegativePrompt    string  `json:"negative_prompt"`
-	Width             int     `json:"width"`
-	Height            int     `json:"height"`
-	RestoreFaces      bool    `json:"restore_faces"`
-	EnableHR          bool    `json:"enable_hr"`
-	HRUpscaleRate     float64 `json:"hr_scale"`
-	HRUpscaler	  string  `json:"hr_upscaler"`
-	HRResizeX         int     `json:"hr_resize_x"`
-	HRResizeY         int     `json:"hr_resize_y"`
-	DenoisingStrength float64 `json:"denoising_strength"`
-	BatchSize         int     `json:"batch_size"`
-	Seed              int64   `json:"seed"`
-	Subseed           int     `json:"subseed"`
-	SubseedStrength   float64 `json:"subseed_strength"`
-	SamplerName       string  `json:"sampler_name"`
-	CfgScale          float64 `json:"cfg_scale"`
-	Steps             int     `json:"steps"`
-	NIter             int     `json:"n_iter"`
+	Prompt         string `json:"prompt"`
+	NegativePrompt string `json:"negative_prompt"`
+	Width          int    `json:"width"`
+	Height         int    `json:"height"`
+	// RestoreFaces      bool    `json:"restore_faces"`
+	// EnableHR          bool    `json:"enable_hr"`
+	// HRUpscaleRate     float64 `json:"hr_scale"`
+	// HRUpscaler	  string  `json:"hr_upscaler"`
+	// HRResizeX         int     `json:"hr_resize_x"`
+	// HRResizeY         int     `json:"hr_resize_y"`
+	// DenoisingStrength float64 `json:"denoising_strength"`
+	BatchSize       int     `json:"batch_size"`
+	Seed            int64   `json:"seed"`
+	Subseed         int     `json:"subseed"`
+	SubseedStrength float64 `json:"subseed_strength"`
+	SamplerName     string  `json:"sampler_name"`
+	CfgScale        float64 `json:"cfg_scale"`
+	Steps           int     `json:"steps"`
+	// NIter             int     `json:"n_iter"`
 }
 
 func (api *apiImpl) TextToImage(req *TextToImageRequest) (*TextToImageResponse, error) {
@@ -154,8 +154,6 @@ func (api *apiImpl) UpscaleImage(upscaleReq *UpscaleRequest) (*UpscaleResponse, 
 	if textToImageReq == nil {
 		return nil, errors.New("missing text to image request")
 	}
-
-	textToImageReq.NIter = 1
 
 	regeneratedImage, err := api.TextToImage(textToImageReq)
 	if err != nil {

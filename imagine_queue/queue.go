@@ -28,8 +28,8 @@ import (
 const (
 	botID = "bot"
 
-	initializedWidth  = 512
-	initializedHeight = 512
+	initializedWidth      = 512
+	initializedHeight     = 512
 	initializedBatchCount = 4
 	initializedBatchSize  = 1
 )
@@ -188,7 +188,6 @@ func (q *queueImpl) fillInBotDefaults(settings *entities.DefaultSettings) (*enti
 	return settings, updated
 }
 
-
 func (q *queueImpl) initializeOrGetBotDefaults() (*entities.DefaultSettings, error) {
 	botDefaultSettings, err := q.GetBotDefaultSettings()
 	if err != nil && !errors.Is(err, &repositories.NotFoundError{}) {
@@ -261,7 +260,6 @@ func (q *queueImpl) defaultBatchSize() (int, error) {
 	return defaultSettings.BatchSize, nil
 }
 
-
 func (q *queueImpl) UpdateDefaultDimensions(width, height int) (*entities.DefaultSettings, error) {
 	defaultSettings, err := q.GetBotDefaultSettings()
 	if err != nil {
@@ -332,9 +330,9 @@ type zoomScaleResult struct {
 
 type pixelSpecifiedResult struct {
 	SanitizedPrompt string
-	Width		int
-	Height		int
-	IsProcessed	bool
+	Width           int
+	Height          int
+	IsProcessed     bool
 }
 
 const (
@@ -391,7 +389,6 @@ func extractDimensionsFromPrompt(prompt string, width, height int) (*dimensionsR
 	}, nil
 }
 
-
 func quotePromptAsMonospace(promptIn string) (quotedprompt string) {
 	// backtick(code) is shown as monospace in Discord client
 	return "`" + promptIn + "`"
@@ -403,7 +400,7 @@ var stepRegex = regexp.MustCompile(`\s?--step ([\d]*)\s?`)
 func extractStepsFromPrompt(prompt string, defaultsteps int) (*stepsResult, error) {
 
 	stepMatches := stepRegex.FindStringSubmatch(prompt)
-	stepsValue  := defaultsteps
+	stepsValue := defaultsteps
 
 	if len(stepMatches) == 2 {
 		log.Printf("steps overwrite: %#v", stepMatches)
@@ -428,10 +425,11 @@ func extractStepsFromPrompt(prompt string, defaultsteps int) (*stepsResult, erro
 }
 
 var cfgscaleRegex = regexp.MustCompile(`\s?--cfgscale (\d\d?\.?\d?)\s?`)
+
 func extractCFGScaleFromPrompt(prompt string, defaultScale float64) (*cfgScaleResult, error) {
 
 	cfgscaleMatches := cfgscaleRegex.FindStringSubmatch(prompt)
-	cfgValue  := defaultScale
+	cfgValue := defaultScale
 
 	if len(cfgscaleMatches) == 2 {
 		log.Printf("CFG Scale overwrite: %#v", cfgscaleMatches)
@@ -455,6 +453,7 @@ func extractCFGScaleFromPrompt(prompt string, defaultScale float64) (*cfgScaleRe
 }
 
 var seedRegex = regexp.MustCompile(`\s?--seed ([\d]+)\s?`)
+
 func extractSeedFromPrompt(prompt string) (*seedResult, error) {
 
 	seedMatches := seedRegex.FindStringSubmatch(prompt)
@@ -468,7 +467,7 @@ func extractSeedFromPrompt(prompt string) (*seedResult, error) {
 		s, err := strconv.ParseInt(seedMatches[1], 10, 64)
 		if err != nil {
 			return nil, err
-		}		
+		}
 		if int64(s) > Seed_MaxValue {
 			seedValue = Seed_MaxValue
 		} else {
@@ -485,12 +484,13 @@ func extractSeedFromPrompt(prompt string) (*seedResult, error) {
 	}, nil
 }
 
-// hires.fix upscaleby 
+// hires.fix upscaleby
 var zoomRegex = regexp.MustCompile(`\s?--zoom (\d\d?\.?\d?)\s?`)
+
 func extractZoomScaleFromPrompt(prompt string, defaultZoomScale float64) (*zoomScaleResult, error) {
 
 	zoomMatches := zoomRegex.FindStringSubmatch(prompt)
-	zoomValue  := defaultZoomScale
+	zoomValue := defaultZoomScale
 
 	if len(zoomMatches) == 2 {
 		log.Printf("Zoom Scale overwrite: %#v", zoomMatches)
@@ -509,19 +509,20 @@ func extractZoomScaleFromPrompt(prompt string, defaultZoomScale float64) (*zoomS
 
 	return &zoomScaleResult{
 		SanitizedPrompt: prompt,
-		ZoomScale:        zoomValue,
+		ZoomScale:       zoomValue,
 	}, nil
 }
 
-// pixel size before zoom, accept by X,Y 
+// pixel size before zoom, accept by X,Y
 var pxRegex = regexp.MustCompile(`\s?--px (\d+)[:,] ?(\d+)\s?`)
+
 func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedResult, error) {
 
 	pxMatches := pxRegex.FindStringSubmatch(prompt)
-	pxValueX  := defaultXYValue
-	pxValueY  := defaultXYValue
+	pxValueX := defaultXYValue
+	pxValueY := defaultXYValue
 	processed := false
-	var x,y int
+	var x, y int
 	var err, err2 error
 
 	if len(pxMatches) == 3 {
@@ -542,7 +543,7 @@ func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedR
 		// Round up to the nearest 8
 		pxValueX = (int(pxValueX) + 7) & (-8)
 		pxValueY = (int(pxValueY) + 7) & (-8)
-		
+
 		if pxValueX > 8192 {
 			pxValueX = 8192
 		} else if pxValueY > 8192 {
@@ -561,13 +562,9 @@ func extractPixelFromPrompt(prompt string, defaultXYValue int) (*pixelSpecifiedR
 	}, nil
 }
 
-
-
-
 const defaultNegative = "ugly, tiling, poorly drawn hands, poorly drawn feet, poorly drawn face, out of frame, " +
-		"mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, " +
-		"body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
-
+	"mutation, mutated, extra limbs, extra legs, extra arms, disfigured, deformed, cross-eye, " +
+	"body out of frame, blurry, bad art, bad anatomy, blurred, text, watermark, grainy"
 
 func (q *queueImpl) processCurrentImagine() {
 	go func() {
@@ -598,7 +595,7 @@ func (q *queueImpl) processCurrentImagine() {
 			return
 		}
 
-		// add optional parameter: Negative prompt	
+		// add optional parameter: Negative prompt
 		negativePrompt := ""
 
 		if q.currentImagine.NegativePrompt == "" {
@@ -626,7 +623,7 @@ func (q *queueImpl) processCurrentImagine() {
 		scaledHeight := defaultHeight
 		hiresWidth := defaultWidth
 		hiresHeight := defaultHeight
-	
+
 		if promptRes.Width > defaultWidth || promptRes.Height > defaultHeight {
 			scaledWidth = promptRes.Width
 			scaledHeight = promptRes.Height
@@ -641,16 +638,16 @@ func (q *queueImpl) processCurrentImagine() {
 			return
 		}
 
-		if (promptResPx.IsProcessed) {
+		if promptResPx.IsProcessed {
 			scaledWidth = promptResPx.Width
 			scaledHeight = promptResPx.Height
 			hiresWidth = promptResPx.Width
 			hiresHeight = promptResPx.Height
 		}
-		
+
 		// add optional parameter: enable hires.fix
 		enableHR1 := false
-		upscaleRate1  := 1.0
+		upscaleRate1 := 1.0
 		upscalerName1 := ""
 
 		// extract --zoom parameter
@@ -663,7 +660,7 @@ func (q *queueImpl) processCurrentImagine() {
 			return
 		}
 
-		enableHR1 = q.currentImagine.UseHiresFix 
+		enableHR1 = q.currentImagine.UseHiresFix
 		if enableHR1 == true {
 			upscaleRate1 = promptResZ.ZoomScale
 			upscalerName1 = "Latent"
@@ -702,14 +699,13 @@ func (q *queueImpl) processCurrentImagine() {
 			seedValue = promptRes4.Seed
 		}
 
-
 		// prompt will displayed as Monospace in Discord
 		var quotedPrompt = quotePromptAsMonospace(promptRes4.SanitizedPrompt)
 		promptRes.SanitizedPrompt = quotedPrompt
 
 		// new generation with defaults
 		newGeneration := &entities.ImageGeneration{
-			Prompt: promptRes.SanitizedPrompt,
+			Prompt:            promptRes.SanitizedPrompt,
 			NegativePrompt:    negativePrompt,
 			Width:             scaledWidth,
 			Height:            scaledHeight,
@@ -793,19 +789,19 @@ func imagineMessageContent(generation *entities.ImageGeneration, user *discordgo
 		sizeString := ""
 		if generation.EnableHR == true {
 			sizeString = fmt.Sprintf("%d x %d -> (x %s by hires.fix)",
-						generation.Width,
-						generation.Height,
-						strconv.FormatFloat(generation.HRUpscaleRate,'f', 1, 64))
+				generation.Width,
+				generation.Height,
+				strconv.FormatFloat(generation.HRUpscaleRate, 'f', 1, 64))
 		} else {
 			sizeString = fmt.Sprintf("%d x %d",
-						generation.Width,
-						generation.Height)
+				generation.Width,
+				generation.Height)
 		}
 		return fmt.Sprintf("<@%s> asked me to imagine \"%s\" at step %d cfgscale %s seed %s with sampler %s. resolution: %s. here is what I imagined for them.",
 			user.ID,
 			generation.Prompt,
 			generation.Steps,
-			strconv.FormatFloat(generation.CfgScale,'f', 1, 64),
+			strconv.FormatFloat(generation.CfgScale, 'f', 1, 64),
 			seedString,
 			generation.SamplerName,
 			sizeString,
@@ -884,25 +880,17 @@ func (q *queueImpl) processImagineGrid(newGeneration *entities.ImageGeneration, 
 	}()
 
 	resp, err := q.stableDiffusionAPI.TextToImage(&stable_diffusion_api.TextToImageRequest{
-		Prompt:            newGeneration.Prompt,
-		NegativePrompt:    newGeneration.NegativePrompt,
-		Width:             newGeneration.Width,
-		Height:            newGeneration.Height,
-		RestoreFaces:      newGeneration.RestoreFaces,
-		EnableHR:          newGeneration.EnableHR,
-		HRUpscaleRate:     newGeneration.HRUpscaleRate,
-		HRUpscaler:        newGeneration.HRUpscaler,
-		HRResizeX:         newGeneration.HiresWidth,
-		HRResizeY:         newGeneration.HiresHeight,
-		DenoisingStrength: newGeneration.DenoisingStrength,
-		BatchSize:         newGeneration.BatchSize,
-		Seed:              newGeneration.Seed,
-		Subseed:           newGeneration.Subseed,
-		SubseedStrength:   newGeneration.SubseedStrength,
-		SamplerName:       newGeneration.SamplerName,
-		CfgScale:          newGeneration.CfgScale,
-		Steps:             newGeneration.Steps,
-		NIter:             newGeneration.BatchCount,
+		Prompt:          newGeneration.Prompt,
+		NegativePrompt:  newGeneration.NegativePrompt,
+		Width:           newGeneration.Width,
+		Height:          newGeneration.Height,
+		BatchSize:       newGeneration.BatchSize,
+		Seed:            newGeneration.Seed,
+		Subseed:         newGeneration.Subseed,
+		SubseedStrength: newGeneration.SubseedStrength,
+		SamplerName:     newGeneration.SamplerName,
+		CfgScale:        newGeneration.CfgScale,
+		Steps:           newGeneration.Steps,
 	})
 	if err != nil {
 		log.Printf("Error processing image: %v\n", err)
@@ -952,7 +940,7 @@ func (q *queueImpl) processImagineGrid(newGeneration *entities.ImageGeneration, 
 			HiresWidth:        newGeneration.HiresWidth,
 			HiresHeight:       newGeneration.HiresHeight,
 			DenoisingStrength: newGeneration.DenoisingStrength,
-			BatchCount:	   newGeneration.BatchCount,
+			BatchCount:        newGeneration.BatchCount,
 			BatchSize:         newGeneration.BatchSize,
 			Seed:              resp.Seeds[idx],
 			Subseed:           resp.Subseeds[idx],
@@ -982,8 +970,8 @@ func (q *queueImpl) processImagineGrid(newGeneration *entities.ImageGeneration, 
 			{
 				ContentType: "image/png",
 				// append timestamp for grid image result
-				Name:        "imagine_" + time.Now().Format("20060102150405") + ".png",
-				Reader:      compositeImage,
+				Name:   "imagine_" + time.Now().Format("20060102150405") + ".png",
+				Reader: compositeImage,
 			},
 		},
 		Components: &[]discordgo.MessageComponent{
@@ -1215,25 +1203,17 @@ func (q *queueImpl) processUpscaleImagine(imagine *QueueItem) {
 		UpscalingResize: 2,
 		Upscaler1:       "ESRGAN_4x",
 		TextToImageRequest: &stable_diffusion_api.TextToImageRequest{
-			Prompt:            generation.Prompt,
-			NegativePrompt:    generation.NegativePrompt,
-			Width:             generation.Width,
-			Height:            generation.Height,
-			RestoreFaces:      generation.RestoreFaces,
-			EnableHR:          generation.EnableHR,
-			HRUpscaleRate:     generation.HRUpscaleRate,
-			HRUpscaler:        generation.HRUpscaler,
-			HRResizeX:         generation.HiresWidth,
-			HRResizeY:         generation.HiresHeight,
-			DenoisingStrength: generation.DenoisingStrength,
-			BatchSize:         1,
-			Seed:              generation.Seed,
-			Subseed:           generation.Subseed,
-			SubseedStrength:   generation.SubseedStrength,
-			SamplerName:       generation.SamplerName,
-			CfgScale:          generation.CfgScale,
-			Steps:             generation.Steps,
-			NIter:             1,
+			Prompt:          generation.Prompt,
+			NegativePrompt:  generation.NegativePrompt,
+			Width:           generation.Width,
+			Height:          generation.Height,
+			BatchSize:       1,
+			Seed:            generation.Seed,
+			Subseed:         generation.Subseed,
+			SubseedStrength: generation.SubseedStrength,
+			SamplerName:     generation.SamplerName,
+			CfgScale:        generation.CfgScale,
+			Steps:           generation.Steps,
 		},
 	})
 	if err != nil {
@@ -1271,9 +1251,9 @@ func (q *queueImpl) processUpscaleImagine(imagine *QueueItem) {
 		Files: []*discordgo.File{
 			{
 				ContentType: "image/png",
-				// add timestamp to output file 
-				Name:        "imagine_" + time.Now().Format("20060102150405") + ".png",
-				Reader:      imageBuf,
+				// add timestamp to output file
+				Name:   "imagine_" + time.Now().Format("20060102150405") + ".png",
+				Reader: imageBuf,
 			},
 		},
 	})
