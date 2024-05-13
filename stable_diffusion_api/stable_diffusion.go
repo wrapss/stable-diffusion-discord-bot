@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -33,9 +34,9 @@ type jsonTextToImageResponse struct {
 }
 
 type jsonInfoResponse struct {
-	Seed        int64 `json:"seed"`
+	Seed        int64   `json:"seed"`
 	AllSeeds    []int64 `json:"all_seeds"`
-	AllSubseeds []int `json:"all_subseeds"`
+	AllSubseeds []int   `json:"all_subseeds"`
 }
 
 type TextToImageResponse struct {
@@ -45,25 +46,25 @@ type TextToImageResponse struct {
 }
 
 type TextToImageRequest struct {
-	Prompt            string  `json:"prompt"`
-	NegativePrompt    string  `json:"negative_prompt"`
-	Width             int     `json:"width"`
-	Height            int     `json:"height"`
-	RestoreFaces      bool    `json:"restore_faces"`
-	EnableHR          bool    `json:"enable_hr"`
-	HRUpscaleRate     float64 `json:"hr_scale"`
-	HRUpscaler	  string  `json:"hr_upscaler"`
-	HRResizeX         int     `json:"hr_resize_x"`
-	HRResizeY         int     `json:"hr_resize_y"`
-	DenoisingStrength float64 `json:"denoising_strength"`
-	BatchSize         int     `json:"batch_size"`
-	Seed              int64   `json:"seed"`
-	Subseed           int     `json:"subseed"`
-	SubseedStrength   float64 `json:"subseed_strength"`
-	SamplerName       string  `json:"sampler_name"`
-	CfgScale          float64 `json:"cfg_scale"`
-	Steps             int     `json:"steps"`
-	NIter             int     `json:"n_iter"`
+	Prompt         string `json:"prompt"`
+	NegativePrompt string `json:"negative_prompt"`
+	Width          int    `json:"width"`
+	Height         int    `json:"height"`
+	// RestoreFaces      bool    `json:"restore_faces"`
+	// EnableHR          bool    `json:"enable_hr"`
+	// HRUpscaleRate     float64 `json:"hr_scale"`
+	// HRUpscaler	  string  `json:"hr_upscaler"`
+	// HRResizeX         int     `json:"hr_resize_x"`
+	// HRResizeY         int     `json:"hr_resize_y"`
+	// DenoisingStrength float64 `json:"denoising_strength"`
+	BatchSize       int     `json:"batch_size"`
+	Seed            int64   `json:"seed"`
+	Subseed         int     `json:"subseed"`
+	SubseedStrength float64 `json:"subseed_strength"`
+	SamplerName     string  `json:"sampler_name"`
+	CfgScale        float64 `json:"cfg_scale"`
+	Steps           int     `json:"steps"`
+	NIter           int     `json:"n_iter"`
 }
 
 func (api *apiImpl) TextToImage(req *TextToImageRequest) (*TextToImageResponse, error) {
@@ -124,6 +125,42 @@ func (api *apiImpl) TextToImage(req *TextToImageRequest) (*TextToImageResponse, 
 		Seeds:    infoStruct.AllSeeds,
 		Subseeds: infoStruct.AllSubseeds,
 	}, nil
+}
+
+func (api *apiImpl) LoadModel(modelName string) error {
+	postURL := api.host + "/sdapi/v1/options"
+
+	jsonData, err := json.Marshal(map[string]string{
+		"sd_model_checkpoint": modelName,
+	})
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequest("POST", postURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json; charset=UTF-8")
+
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		log.Printf("API URL: %s", postURL)
+		log.Printf("Error with API Request: %s", string(jsonData))
+
+		return err
+	}
+
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusOK {
+		return fmt.Errorf("failed to load model: %s", modelName)
+	}
+
+	return nil
 }
 
 type UpscaleRequest struct {

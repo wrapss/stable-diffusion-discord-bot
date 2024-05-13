@@ -161,6 +161,15 @@ func New(cfg Config) (Bot, error) {
 
 				bot.processImagineDimensionSetting(s, i, widthInt, heightInt)
 
+			case customID == "imagine_model_setting_menu":
+				if len(i.MessageComponentData().Values) == 0 {
+					log.Printf("No values for imagine model setting menu")
+					return
+				}
+
+				model := i.MessageComponentData().Values[0]
+				bot.processImagineModelSetting(s, i, model)
+
 			// patch from upstream
 			case customID == "imagine_batch_count_setting_menu":
 				if len(i.MessageComponentData().Values) == 0 {
@@ -285,90 +294,94 @@ func (b *botImpl) addImagineCommand() error {
 				Required:    false,
 			},
 			{
-				Type:	     discordgo.ApplicationCommandOptionString,
-				Name:	     "sampler_name",
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "sampler_name",
 				Description: "sampler",
 				Required:    false,
-				Choices: []*discordgo.ApplicationCommandOptionChoice {
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "Euler a",
-						Value:"Euler a",
+						Name:  "Euler a",
+						Value: "Euler a",
 					},
 					{
-						Name: "DDIM",
-						Value:"DDIM",
+						Name:  "DDIM",
+						Value: "DDIM",
 					},
 					{
-						Name: "PLMS",
-						Value:"PLMS",
+						Name:  "PLMS",
+						Value: "PLMS",
 					},
 					{
-						Name: "UniPC",
-						Value:"UniPC",
+						Name:  "UniPC",
+						Value: "UniPC",
 					},
 					{
-						Name: "Heun",
-						Value:"Heun",
+						Name:  "Heun",
+						Value: "Heun",
 					},
 					{
-						Name: "Euler",
-						Value:"Euler",
+						Name:  "Euler",
+						Value: "Euler",
 					},
 					{
-						Name: "LMS",
-						Value:"LMS",
+						Name:  "LMS",
+						Value: "LMS",
 					},
 					{
-						Name: "LMS Karras",
-						Value:"LMS Karras",
+						Name:  "LMS Karras",
+						Value: "LMS Karras",
 					},
 					{
-						Name: "DPM2 a",
-						Value:"DPM2 a",
+						Name:  "DPM2 a",
+						Value: "DPM2 a",
 					},
 					{
-						Name: "DPM2 a Karras",
-						Value:"DPM2 a Karras",
+						Name:  "DPM2 a Karras",
+						Value: "DPM2 a Karras",
 					},
 					{
-						Name: "DPM2",
-						Value:"DPM2",
+						Name:  "DPM2",
+						Value: "DPM2",
 					},
 					{
-						Name: "DPM2 Karras",
-						Value:"DPM2 Karras",
+						Name:  "DPM2 Karras",
+						Value: "DPM2 Karras",
 					},
 					{
-						Name: "DPM fast",
-						Value:"DPM fast",
+						Name:  "DPM fast",
+						Value: "DPM fast",
 					},
 					{
-						Name: "DPM adaptive",
-						Value:"DPM adaptive",
+						Name:  "DPM adaptive",
+						Value: "DPM adaptive",
 					},
 					{
-						Name: "DPM++ 2S a",
-						Value:"DPM++ 2S a",
+						Name:  "DPM++ 2S a",
+						Value: "DPM++ 2S a",
 					},
 					{
-						Name: "DPM++ 2M",
-						Value:"DPM++ 2M",
+						Name:  "DPM++ 2M",
+						Value: "DPM++ 2M",
 					},
 					{
-						Name: "DPM++ SDE",
-						Value:"DPM++ SDE",
+						Name:  "DPM++ SDE",
+						Value: "DPM++ SDE",
 					},
 					{
-						Name: "DPM++ 2S a Karras",
-						Value:"DPM++ 2S a Karras",
+						Name:  "DPM++ 2S a Karras",
+						Value: "DPM++ 2S a Karras",
 					},
 					{
-						Name: "DPM++ 2M Karras",
-						Value:"DPM++ 2M Karras",
+						Name:  "DPM++ 2M Karras",
+						Value: "DPM++ 2M Karras",
 					},
 					{
-						Name: "DPM++ SDE Karras",
-						Value:"DPM++ SDE Karras",
+						Name:  "DPM++ SDE Karras",
+						Value: "DPM++ SDE Karras",
+					},
+					{
+						Name:  "DPM++ 2M EDM",
+						Value: "DPM++ 2M EDM",
 					},
 				},
 			},
@@ -377,13 +390,13 @@ func (b *botImpl) addImagineCommand() error {
 				Name:        "use_hires_fix",
 				Description: "use hires.fix or not. default=No for better performance",
 				Required:    false,
-				Choices: []*discordgo.ApplicationCommandOptionChoice {
+				Choices: []*discordgo.ApplicationCommandOptionChoice{
 					{
-						Name: "Yes",
+						Name:  "Yes",
 						Value: "true",
 					},
 					{
-						Name: "No",
+						Name:  "No",
 						Value: "false",
 					},
 				},
@@ -493,7 +506,7 @@ func (b *botImpl) processImagineCommand(s *discordgo.Session, i *discordgo.Inter
 	var queueError error
 	var prompt string
 	negative := ""
-	sampler  := "Euler a"
+	sampler := "Euler a"
 	hiresfix := false
 
 	if option, ok := optionMap["prompt"]; ok {
@@ -540,11 +553,50 @@ func (b *botImpl) processImagineCommand(s *discordgo.Session, i *discordgo.Inter
 	}
 }
 
+func (b *botImpl) processImagineModelSetting(s *discordgo.Session, i *discordgo.InteractionCreate, model string) {
+	botSettings, err := b.imagineQueue.UpdateDefaultModel(model)
+	if err != nil {
+		// Gestion des erreurs
+	}
+
+	messageComponents := settingsMessageComponents(botSettings)
+
+	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseUpdateMessage,
+		Data: &discordgo.InteractionResponseData{
+			Content:    "Choose defaults settings for the imagine command:",
+			Components: messageComponents,
+		},
+	})
+	// Gestion des erreurs
+}
+
 // patch from upstream
 func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.MessageComponent {
 	minValues := 1
 
 	return []discordgo.MessageComponent{
+		discordgo.ActionsRow{
+			Components: []discordgo.MessageComponent{
+				discordgo.SelectMenu{
+					CustomID:  "imagine_model_setting_menu",
+					MinValues: &minValues,
+					MaxValues: 1,
+					Options: []discordgo.SelectMenuOption{
+						{
+							Label:   "playground-v2.5-1024px-aesthetic.fp16",
+							Value:   "playground-v2.5-1024px-aesthetic.fp16",
+							Default: settings.Model == "playground-v2.5-1024px-aesthetic.fp16",
+						},
+						{
+							Label:   "ProteusV0.3",
+							Value:   "ProteusV0.3",
+							Default: settings.Model == "ProteusV0.3",
+						},
+					},
+				},
+			},
+		},
 		discordgo.ActionsRow{
 			Components: []discordgo.MessageComponent{
 				discordgo.SelectMenu{
@@ -561,6 +613,11 @@ func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.M
 							Label:   "Size: 768x768",
 							Value:   "768_768",
 							Default: settings.Width == 768 && settings.Height == 768,
+						},
+						{
+							Label:   "Size: 1024x1024",
+							Value:   "1024_1024",
+							Default: settings.Width == 1024 && settings.Height == 1024,
 						},
 					},
 				},
@@ -621,7 +678,6 @@ func settingsMessageComponents(settings *entities.DefaultSettings) []discordgo.M
 	}
 }
 
-
 func (b *botImpl) processImagineSettingsCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	botSettings, err := b.imagineQueue.GetBotDefaultSettings()
 	if err != nil {
@@ -637,7 +693,7 @@ func (b *botImpl) processImagineSettingsCommand(s *discordgo.Session, i *discord
 		Data: &discordgo.InteractionResponseData{
 			Title:      "Settings",
 			Content:    "Choose defaults settings for the imagine command:",
-			Components: messageComponents,		
+			Components: messageComponents,
 		},
 	})
 	if err != nil {
@@ -708,4 +764,3 @@ func (b *botImpl) processImagineBatchSetting(s *discordgo.Session, i *discordgo.
 		log.Printf("Error responding to interaction: %v", err)
 	}
 }
-
